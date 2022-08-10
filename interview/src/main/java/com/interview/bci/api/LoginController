@@ -1,0 +1,11 @@
+
+@RestController
+class LoginController {
+
+    @PostMapping("/sign-up")
+    List<Employee> login() {
+        return repository.findAll();
+    }
+
+
+}
