@@ -1,22 +1,17 @@
 package com.interview.bci.entity;
 
-import com.sun.istack.Nullable;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
-
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import java.io.Serializable;
 
-@ToString
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-public class Phone {
+public class Phone implements Serializable {
 
     @Id
     private long number;
