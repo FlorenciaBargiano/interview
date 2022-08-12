@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ErrorResponse {
+public class GenericException extends Throwable{
     private LocalDateTime timeStamp;
     private int code;
     private String detail;
