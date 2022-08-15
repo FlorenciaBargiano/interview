@@ -1,7 +1,6 @@
 package com.interview.bci.service;
 
-import com.interview.bci.configuration.TokenManager;
-import com.interview.bci.entity.ErrorResponse;
+import com.interview.bci.entity.GenericException;
 import com.interview.bci.entity.User;
 import com.interview.bci.entity.UserResponse;
 import com.interview.bci.repository.UserRepository;
@@ -9,96 +8,82 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
 
     private final UserRepository userRepository;
-    private final TokenManager tokenManager;
+    private static final String patternEmail = "^[(a-zA-Z-0-9-\\_\\+\\.)]+@[(a-z-A-Z)]+\\.[(a-zA-z)]{2,3}$";
+    private static final String patternPassword = "[a-zA-Z-0-9]{8,12}$";
 
-    public UserResponse signUp(final User user) throws ErrorResponse {
-
-        validateFields(user);
+    public UserResponse signUp(final User user) throws GenericException {
         validateEmail(user.getEmail());
         validatePassword(user.getPassword());
         if (userRepository.existsByEmail(user.getEmail()))
-            generateException(400, "Bad Request - A user with that mail already exists");
+            generateException(400, "Not valid - A user with that mail already exists");
         user.setActive(true);
         user.setLastLogin(LocalDateTime.now());
         user.setCreated(LocalDateTime.now());
         userRepository.save(user);
         return UserResponse.builder()
                 .user(user)
-                .token(tokenManager.generateJwtToken(user))
+                .token("")
                 .build();
     }
 
-    public UserResponse login(final String token) throws ErrorResponse {
-        String userId = tokenManager.geIdFromToken(token);
+    public UserResponse login(final String userId) throws GenericException {
 
         Optional<User> user = userRepository.findById(userId);
         if (!user.isPresent())
             generateException(404, "Not Found - The user was not found by the given token");
 
+        user.get().setLastLogin(LocalDateTime.now());
+        userRepository.save(user.get());
+
         return UserResponse.builder()
                 .user(user.get())
-                .token(tokenManager.generateJwtToken(user.get()))
+                .token("")
                 .build();
     }
 
-    private void validateEmail(String email) throws ErrorResponse {
-
-        Pattern pattern = Pattern.compile("^[(a-zA-Z-0-9-\\_\\+\\.)]+@[(a-z-A-z)]+\\.[(a-zA-z)]{2,3}$");
+    private void validateEmail(String email) throws GenericException {
+        Pattern pattern = Pattern.compile(patternEmail);
         Matcher regMatcher = pattern.matcher(email);
-        if (!regMatcher.matches()) {
-            generateException(400, "Bad Request - The email is not valid");
-        }
+        if (!regMatcher.matches())
+            generateException(400, "Not valid - The email provided is not valid");
     }
 
-    private void validatePassword(String password) throws ErrorResponse {
+    private void validatePassword(String password) throws GenericException {
 
-        int countCapital = 0;
-        int countDigit = 0;
+        List<Character> listDigits;
+        List<Character> listCapitals= new ArrayList<>();
 
-        Pattern pattern = Pattern.compile("[a-zA-Z-0-9]{8,12}$");
+        Pattern pattern = Pattern.compile(patternPassword);
         Matcher regMatcher = pattern.matcher(password);
-        if (!regMatcher.matches()) {
-            generateException(400, "Bad Request - The password is not valid");
-        }
+        if (!regMatcher.matches())
+            generateException(400, "Not valid - The password is not valid");
 
-        for (int i = 0; i < password.length(); i++) {
-            char ch = password.charAt(i);
-            if (Character.isUpperCase(ch)) {
-                if (countCapital == 1) {
-                    generateException(400, "Bad Request - The password is not valid. The number of upper cases " +
-                            "are greater than 2");
-                } else {
-                    countCapital++;
-                }
-            } else if (Character.isDigit(ch)) {
-                if (countDigit == 1) {
-                    generateException(400, "Bad Request - The password is not valid. The number of digits are " +
-                            "greater than 2");
-                } else {
-                    countDigit++;
-                }
-            }
-        }
+       listDigits = password.chars().mapToObj((i) -> (char)i)
+                .peek(character -> {
+                            if (Character.isUpperCase(character))
+                                listCapitals.add(character);
+                        })
+                 .filter(Character::isDigit)
+                 .collect(Collectors.toList());
+
+        if(listCapitals.size() !=1 || listDigits.size() != 2)
+            generateException(400, "Not valid - The password is not valid. It should have at least " +
+                    "one capital letter and two digits");
     }
 
-    private void validateFields(User user) throws ErrorResponse {
-        Optional<String> email = Optional.ofNullable(user.getName());
-        Optional<String> password = Optional.ofNullable(user.getPassword());
-
-        if (!email.isPresent() || !password.isPresent())
-            generateException(400, "Bad Request - Email and password are not nullable fields");
-    }
-
-    private void generateException(int code, String detail) throws ErrorResponse {
-        throw new ErrorResponse(LocalDateTime.now(), code, detail);
+    private void generateException(int code, String detail) throws GenericException {
+        throw new GenericException(LocalDateTime.now(), code, detail);
     }
 }

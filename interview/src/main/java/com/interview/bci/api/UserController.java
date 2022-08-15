@@ -1,15 +1,27 @@
 package com.interview.bci.api;
 
-import com.interview.bci.entity.ErrorResponse;
-import com.interview.bci.entity.UserResponse;
+import com.fasterxml.jackson.databind.node.TextNode;
+import com.interview.bci.entity.GenericException;
 import com.interview.bci.entity.User;
+import com.interview.bci.entity.UserResponse;
 import com.interview.bci.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.Errors;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.validation.Valid;
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -17,13 +29,22 @@ public class UserController {
 
     private final UserService userService;
 
-    @PostMapping("/sign-up")
-    ResponseEntity<UserResponse> signUp(@RequestBody User user) throws ErrorResponse {
-        return ResponseEntity.ok(userService.signUp(user));
+    @PostMapping(value = "/sign-up",
+            produces = "application/json",
+            consumes = "application/json")
+    ResponseEntity<UserResponse> signUp(@Valid @RequestBody User user,
+                                        Errors errors) throws GenericException {
+        if (errors.hasErrors())
+            throw new GenericException(LocalDateTime.now(), 400, errors.getAllErrors().get(0).getDefaultMessage());
+
+        return new ResponseEntity<>(userService.signUp(user), HttpStatus.CREATED);
     }
 
-    @GetMapping("/login")
-    ResponseEntity<UserResponse> login(@RequestBody String token) throws ErrorResponse {
-        return  ResponseEntity.ok(userService.login(token));
+    @GetMapping(value = "/login",
+            produces = "application/json",
+            consumes = "application/json")
+    ResponseEntity<UserResponse> login(@RequestBody String userId) throws GenericException {
+        return ResponseEntity.ok(userService.login((userId)));
     }
+
 }

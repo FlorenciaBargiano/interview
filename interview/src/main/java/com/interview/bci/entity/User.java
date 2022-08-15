@@ -12,7 +12,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -38,10 +38,10 @@ public class User implements Serializable {
 
     private String name;
 
-    @NotNull
+    @NotBlank(message = "Email is mandatory")
     private String email;
 
-    @NotNull
+    @NotBlank(message = "Password is mandatory")
     private String password;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
