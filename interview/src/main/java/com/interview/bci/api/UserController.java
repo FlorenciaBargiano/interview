@@ -11,6 +11,7 @@ import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
@@ -34,10 +35,9 @@ public class UserController {
     }
 
     @GetMapping(value = "/login",
-            produces = "application/json",
-            consumes = "application/json")
-    ResponseEntity<UserResponse> login(@RequestBody String userId) throws GenericException {
-        return ResponseEntity.ok(userService.login((userId)));
+            produces = "application/json")
+    ResponseEntity<UserResponse> login(@RequestHeader("token") String token) throws GenericException {
+        return ResponseEntity.ok(userService.login((token)));
     }
 
 }

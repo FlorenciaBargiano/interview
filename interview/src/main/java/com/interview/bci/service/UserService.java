@@ -40,7 +40,9 @@ public class UserService {
                 .build();
     }
 
-    public UserResponse login(final String userId) throws GenericException {
+    public UserResponse login(final String token) throws GenericException {
+
+        String userId = tokenManager.geIdFromToken(token);
 
         Optional<User> user = userRepository.findById(userId);
         if (!user.isPresent())
