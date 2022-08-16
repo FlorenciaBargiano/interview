@@ -1,4 +1,4 @@
-package com.interview.bci.ErrorHandler;
+package com.interview.bci.errorHandler;
 
 import com.interview.bci.entity.ErrorResponse;
 import com.interview.bci.entity.GenericException;

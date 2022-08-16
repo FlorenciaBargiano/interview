@@ -1,5 +1,6 @@
 package com.interview.bci.service;
 
+import com.interview.bci.configuration.TokenManager;
 import com.interview.bci.entity.GenericException;
 import com.interview.bci.entity.User;
 import com.interview.bci.entity.UserResponse;
@@ -20,6 +21,7 @@ import java.util.stream.Collectors;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final TokenManager tokenManager;
     private static final String patternEmail = "^[(a-zA-Z-0-9-\\_\\+\\.)]+@[(a-z-A-Z)]+\\.[(a-zA-z)]{2,3}$";
     private static final String patternPassword = "[a-zA-Z-0-9]{8,12}$";
 
@@ -34,7 +36,7 @@ public class UserService {
         userRepository.save(user);
         return UserResponse.builder()
                 .user(user)
-                .token("")
+                .token(tokenManager.generateJwtToken(user))
                 .build();
     }
 
@@ -49,7 +51,7 @@ public class UserService {
 
         return UserResponse.builder()
                 .user(user.get())
-                .token("")
+                .token(tokenManager.generateJwtToken(user.get()))
                 .build();
     }
 
