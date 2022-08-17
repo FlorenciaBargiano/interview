@@ -33,10 +33,10 @@ public class UserService {
         user.setActive(true);
         user.setLastLogin(LocalDateTime.now());
         user.setCreated(LocalDateTime.now());
-        userRepository.save(user);
+        User userSaved = userRepository.save(user);
         return UserResponse.builder()
-                .user(user)
-                .token(tokenManager.generateJwtToken(user))
+                .user(userSaved)
+                .token(tokenManager.generateJwtToken(userSaved))
                 .build();
     }
 
@@ -48,12 +48,15 @@ public class UserService {
         if (!user.isPresent())
             generateException(404, "Not Found - The user was not found by the given token");
 
+        if( !user.get().isActive())
+            generateException(400, "Not valid - The user is not active");
+
         user.get().setLastLogin(LocalDateTime.now());
-        userRepository.save(user.get());
+        User userSaved = userRepository.save(user.get());
 
         return UserResponse.builder()
-                .user(user.get())
-                .token(tokenManager.generateJwtToken(user.get()))
+                .user(userSaved)
+                .token(tokenManager.generateJwtToken(userSaved))
                 .build();
     }
 
