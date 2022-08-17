@@ -1,6 +1,6 @@
 package com.interview.bci.api;
 
-import com.interview.bci.entity.GenericException;
+import com.interview.bci.entity.BadRequestException;
 import com.interview.bci.entity.User;
 import com.interview.bci.entity.UserResponse;
 import com.interview.bci.service.UserService;
@@ -27,16 +27,16 @@ public class UserController {
             produces = "application/json",
             consumes = "application/json")
     ResponseEntity<UserResponse> signUp(@Valid @RequestBody User user,
-                                        Errors errors) throws GenericException {
+                                        Errors errors) {
         if (errors.hasErrors())
-            throw new GenericException(LocalDateTime.now(), 400, errors.getAllErrors().get(0).getDefaultMessage());
+            throw new BadRequestException(LocalDateTime.now(), errors.getAllErrors().get(0).getDefaultMessage());
 
         return new ResponseEntity<>(userService.signUp(user), HttpStatus.CREATED);
     }
 
     @GetMapping(value = "/login",
             produces = "application/json")
-    ResponseEntity<UserResponse> login(@RequestHeader("token") String token) throws GenericException {
+    ResponseEntity<UserResponse> login(@RequestHeader("token") String token) {
         return ResponseEntity.ok(userService.login((token)));
     }
 

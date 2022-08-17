@@ -1,7 +1,8 @@
 package com.interview.bci.service;
 
 import com.interview.bci.configuration.TokenManager;
-import com.interview.bci.entity.GenericException;
+import com.interview.bci.entity.BadRequestException;
+import com.interview.bci.entity.NotFoundException;
 import com.interview.bci.entity.User;
 import com.interview.bci.entity.UserResponse;
 import com.interview.bci.repository.UserRepository;
@@ -25,11 +26,11 @@ public class UserService {
     private static final String patternEmail = "^[(a-zA-Z-0-9-\\_\\+\\.)]+@[(a-z-A-Z)]+\\.[(a-zA-z)]{2,3}$";
     private static final String patternPassword = "[a-zA-Z-0-9]{8,12}$";
 
-    public UserResponse signUp(final User user) throws GenericException {
+    public UserResponse signUp(final User user) {
         validateEmail(user.getEmail());
         validatePassword(user.getPassword());
         if (userRepository.existsByEmail(user.getEmail()))
-            generateException(400, "Not valid - A user with that mail already exists");
+            generateBadRequestException("Not valid - A user with that mail already exists");
         user.setActive(true);
         user.setLastLogin(LocalDateTime.now());
         user.setCreated(LocalDateTime.now());
@@ -40,16 +41,16 @@ public class UserService {
                 .build();
     }
 
-    public UserResponse login(final String token) throws GenericException {
+    public UserResponse login(final String token) {
 
         String userId = tokenManager.geIdFromToken(token);
 
         Optional<User> user = userRepository.findById(userId);
         if (!user.isPresent())
-            generateException(404, "Not Found - The user was not found by the given token");
+            generateNotFoundException("Not Found - The user was not found by the given token");
 
         if( !user.get().isActive())
-            generateException(400, "Not valid - The user is not active");
+            generateBadRequestException("Not valid - The user is not active");
 
         user.get().setLastLogin(LocalDateTime.now());
         User userSaved = userRepository.save(user.get());
@@ -60,14 +61,14 @@ public class UserService {
                 .build();
     }
 
-    private void validateEmail(String email) throws GenericException {
+    private void validateEmail(String email) {
         Pattern pattern = Pattern.compile(patternEmail);
         Matcher regMatcher = pattern.matcher(email);
         if (!regMatcher.matches())
-            generateException(400, "Not valid - The email provided is not valid");
+            generateBadRequestException("Not valid - The email provided is not valid");
     }
 
-    private void validatePassword(String password) throws GenericException {
+    private void validatePassword(String password) {
 
         List<Character> listDigits;
         List<Character> listCapitals= new ArrayList<>();
@@ -75,7 +76,7 @@ public class UserService {
         Pattern pattern = Pattern.compile(patternPassword);
         Matcher regMatcher = pattern.matcher(password);
         if (!regMatcher.matches())
-            generateException(400, "Not valid - The password is not valid");
+            generateBadRequestException("Not valid - The password is not valid");
 
        listDigits = password.chars().mapToObj((i) -> (char)i)
                 .peek(character -> {
@@ -86,11 +87,15 @@ public class UserService {
                  .collect(Collectors.toList());
 
         if(listCapitals.size() !=1 || listDigits.size() != 2)
-            generateException(400, "Not valid - The password is not valid. It should have at least " +
+            generateBadRequestException("Not valid - The password is not valid. It should have at least " +
                     "one capital letter and two digits");
     }
 
-    private void generateException(int code, String detail) throws GenericException {
-        throw new GenericException(LocalDateTime.now(), code, detail);
+    private void generateBadRequestException(String detail) {
+        throw new BadRequestException(LocalDateTime.now(), detail);
+    }
+
+    private void generateNotFoundException(String detail) {
+        throw new NotFoundException(LocalDateTime.now(), detail);
     }
 }

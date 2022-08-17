@@ -1,7 +1,8 @@
 package com.interview.bci.errorHandler;
 
 import com.interview.bci.entity.ErrorResponse;
-import com.interview.bci.entity.GenericException;
+import com.interview.bci.entity.BadRequestException;
+import com.interview.bci.entity.NotFoundException;
 import io.jsonwebtoken.ExpiredJwtException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,10 +15,16 @@ import java.time.LocalDateTime;
 @RestControllerAdvice
 public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionHandler {
 
-    @ExceptionHandler(GenericException.class)
-    protected ResponseEntity<Object> handleErrorResponseWhenGenericException(GenericException ex) {
-        ErrorResponse errorResponse = new ErrorResponse(ex.getTimeStamp(), ex.getCode(),ex.getDetail());
-        return new ResponseEntity<>( errorResponse, HttpStatus.valueOf(ex.getCode()));
+    @ExceptionHandler(BadRequestException.class)
+    protected ResponseEntity<Object> handleErrorResponseWhenBadRequestException(BadRequestException ex) {
+        ErrorResponse errorResponse = new ErrorResponse(ex.getTimeStamp(), 400,ex.getDetail());
+        return new ResponseEntity<>( errorResponse, HttpStatus.valueOf(400));
+    }
+
+    @ExceptionHandler(NotFoundException.class)
+    protected ResponseEntity<Object> handleErrorResponseWhenNotFoundException(NotFoundException ex) {
+        ErrorResponse errorResponse = new ErrorResponse(ex.getTimeStamp(), 404,ex.getDetail());
+        return new ResponseEntity<>( errorResponse, HttpStatus.valueOf(404));
     }
 
     @ExceptionHandler(ExpiredJwtException.class)
