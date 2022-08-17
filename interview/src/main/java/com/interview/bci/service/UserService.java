@@ -35,10 +35,8 @@ public class UserService {
         user.setLastLogin(LocalDateTime.now());
         user.setCreated(LocalDateTime.now());
         User userSaved = userRepository.save(user);
-        return UserResponse.builder()
-                .user(userSaved)
-                .token(tokenManager.generateJwtToken(userSaved))
-                .build();
+        String tokenJWT = tokenManager.generateJwtToken(userSaved);
+        return new UserResponse().buildUserResponse(tokenJWT, userSaved);
     }
 
     public UserResponse login(final String token) {
@@ -47,18 +45,15 @@ public class UserService {
 
         Optional<User> user = userRepository.findById(userId);
         if (!user.isPresent())
-            generateNotFoundException("Not Found - The user was not found by the given token");
+            throw new NotFoundException(LocalDateTime.now(), "Not Found - The user was not found by the given token");
 
         if( !user.get().isActive())
             generateBadRequestException("Not valid - The user is not active");
 
         user.get().setLastLogin(LocalDateTime.now());
         User userSaved = userRepository.save(user.get());
-
-        return UserResponse.builder()
-                .user(userSaved)
-                .token(tokenManager.generateJwtToken(userSaved))
-                .build();
+        String tokenJWT = tokenManager.generateJwtToken(userSaved);
+        return new UserResponse().buildUserResponse(tokenJWT, userSaved);
     }
 
     private void validateEmail(String email) {
@@ -95,7 +90,4 @@ public class UserService {
         throw new BadRequestException(LocalDateTime.now(), detail);
     }
 
-    private void generateNotFoundException(String detail) {
-        throw new NotFoundException(LocalDateTime.now(), detail);
-    }
 }
