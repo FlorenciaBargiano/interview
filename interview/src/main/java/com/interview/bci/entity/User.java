@@ -1,6 +1,7 @@
 package com.interview.bci.entity;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
@@ -23,6 +24,7 @@ import java.util.List;
 @AllArgsConstructor
 @Entity
 @Table(name="`user`")
+@Builder
 public class User implements Serializable {
 
     @Id
