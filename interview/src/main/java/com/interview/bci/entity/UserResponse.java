@@ -4,9 +4,12 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 @Data
 @NoArgsConstructor
@@ -16,9 +19,9 @@ public class UserResponse {
 
     private String id;
 
-    private LocalDateTime created;
+    private String created;
 
-    private LocalDateTime lastLogin;
+    private String lastLogin;
 
     private boolean isActive;
 
@@ -33,13 +36,18 @@ public class UserResponse {
     public UserResponse buildUserResponse(String token, User user){
         this.token = token;
         this.id = user.getId();
-        this.created = user.getCreated();
-        this.lastLogin = user.getLastLogin();
+        this.created = returnDateInCorrectFormat(user.getCreated());
+        this.lastLogin = returnDateInCorrectFormat(user.getLastLogin());
         this.isActive = user.isActive();
         this.name = user.getName();
         this.email = user.getEmail();
         this.password = user.getPassword();
         this.phones = user.getPhones();
         return this;
+    }
+
+    private String returnDateInCorrectFormat(LocalDateTime dateTime){
+        SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy hh.mm.ss aa", Locale.US);
+        return dateFormat.format(Timestamp.valueOf(dateTime));
     }
 }
