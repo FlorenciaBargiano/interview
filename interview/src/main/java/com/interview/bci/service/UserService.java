@@ -7,6 +7,7 @@ import com.interview.bci.entity.User;
 import com.interview.bci.entity.UserResponse;
 import com.interview.bci.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -22,6 +23,7 @@ import java.util.stream.Collectors;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder encoder;
     private final TokenManager tokenManager;
     private static final String patternEmail = "^[(a-zA-Z-0-9-\\_\\+\\.)]+@[(a-z-A-Z)]+\\.[(a-zA-z)]{2,3}$";
     private static final String patternPassword = "[a-zA-Z-0-9]{8,12}$";
@@ -29,11 +31,13 @@ public class UserService {
     public UserResponse signUp(final User user) {
         validateEmail(user.getEmail());
         validatePassword(user.getPassword());
+        String encryptedPassword = encoder.encode(user.getPassword());
         if (userRepository.existsByEmail(user.getEmail()))
             generateBadRequestException("Not valid - A user with that mail already exists");
         user.setActive(true);
         user.setLastLogin(LocalDateTime.now());
         user.setCreated(LocalDateTime.now());
+        user.setPassword(encryptedPassword);
         User userSaved = userRepository.save(user);
         String tokenJWT = tokenManager.generateJwtToken(userSaved);
         return new UserResponse().buildUserResponse(tokenJWT, userSaved);
@@ -86,7 +90,7 @@ public class UserService {
                     "one capital letter and two digits");
     }
 
-    private void generateBadRequestException(String detail) {
+    private void generateBadRequestException(String detail){
         throw new BadRequestException(LocalDateTime.now(), detail);
     }
 

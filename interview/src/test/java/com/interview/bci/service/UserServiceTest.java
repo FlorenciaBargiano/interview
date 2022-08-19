@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -38,10 +39,14 @@ class UserServiceTest {
     @Mock
     private TokenManager tokenManager;
 
+    @Mock
+    private PasswordEncoder passwordEncoder;
+
     private UserService userService;
 
     private static final String email = "bargianoflorencia@otlook.com";
     private static final String password = "Flor23aaaa";
+    private static final String encryptedPassword= "$2a$10$tlzO7HZgrQT.1xFbFlD6V.vEx.YDKEyTVjfOHNUz3UEKpGXxDhrN.";
     private static final String token = "eyJhbGciOiJIUzUxMiJ9.eyJleHAiOjE2NjA4Njk3OTQsImlhdCI6MTY2MDgzMzc5NCwianRpIjoi" +
             "N2YwZmY5MzgtOTM2Ny00M2E1LTk1NGMtZWU0MTA1ZDZjZTJlIn0.NYzTDUImXjA4Hqte4Cuo_CtpKNeTJ9xZQhBFa66K1Uufl5bkU" +
             "u9NgLG4U8Yr2vbfq9XI3NSSERkrAw24oYFWvw";
@@ -50,7 +55,7 @@ class UserServiceTest {
     @BeforeEach
     void init() {
         MockitoAnnotations.openMocks(this);
-        userService = new UserService(userRepository, tokenManager);
+        userService = new UserService(userRepository, passwordEncoder, tokenManager);
     }
 
     @Test
@@ -59,6 +64,7 @@ class UserServiceTest {
         when(userRepository.existsByEmail(email)).thenReturn(false);
         when(userRepository.save(request)).thenReturn(request);
         when(tokenManager.generateJwtToken(request)).thenReturn(token);
+        when(passwordEncoder.encode(request.getPassword())).thenReturn(encryptedPassword);
 
         UserResponse response = userService.signUp(request);
 
@@ -66,7 +72,6 @@ class UserServiceTest {
                 () -> assertEquals(request.getEmail(), response.getEmail()),
                 () -> assertEquals(request.getPassword(), response.getPassword()),
                 () -> assertEquals(response.getEmail(), email),
-                () -> assertEquals(response.getPassword(), password),
                 () -> assertTrue(response.isActive()),
                 () -> assertNotNull(response.getCreated()),
                 () -> assertNotNull(response.getLastLogin()),
@@ -76,6 +81,7 @@ class UserServiceTest {
         verify(userRepository, times(1)).existsByEmail(any());
         verify(userRepository, times(1)).save(any());
         verify(tokenManager, times(1)).generateJwtToken(any());
+        verify(passwordEncoder, times(1)).encode(any());
     }
 
     @Test
@@ -84,6 +90,7 @@ class UserServiceTest {
         when(userRepository.existsByEmail(email)).thenReturn(false);
         when(userRepository.save(request)).thenReturn(request);
         when(tokenManager.generateJwtToken(request)).thenReturn(token);
+        when(passwordEncoder.encode(request.getPassword())).thenReturn(encryptedPassword);
 
         UserResponse response = userService.signUp(request);
 
@@ -91,7 +98,6 @@ class UserServiceTest {
                 () -> assertEquals(request.getEmail(), response.getEmail()),
                 () -> assertEquals(request.getPassword(), response.getPassword()),
                 () -> assertEquals(response.getEmail(), email),
-                () -> assertEquals(response.getPassword(), password),
                 () -> assertTrue(response.isActive()),
                 () -> assertEquals(request.getPhones(), response.getPhones()),
                 () -> assertEquals(request.getName(), response.getName()),
@@ -103,6 +109,7 @@ class UserServiceTest {
         verify(userRepository, times(1)).existsByEmail(any());
         verify(userRepository, times(1)).save(any());
         verify(tokenManager, times(1)).generateJwtToken(any());
+        verify(passwordEncoder, times(1)).encode(any());
     }
 
     @Test
@@ -113,7 +120,7 @@ class UserServiceTest {
         assertThrows(BadRequestException.class, () -> userService.signUp(request),
                 "Not valid - A user with that mail already exists");
 
-
+        verify(userRepository, times(1)).existsByEmail(any());
         verify(userRepository, never()).save(any());
         verify(tokenManager, never()).generateJwtToken(any());
     }
