@@ -32,22 +32,25 @@ public class UserService {
         validateEmail(user.getEmail());
         validatePassword(user.getPassword());
         String encryptedPassword = encoder.encode(user.getPassword());
+
         if (userRepository.existsByEmail(user.getEmail()))
             generateBadRequestException("Not valid - A user with that mail already exists");
+
         user.setActive(true);
         user.setLastLogin(null);
         user.setCreated(LocalDateTime.now());
         user.setPassword(encryptedPassword);
         User userSaved = userRepository.save(user);
         String tokenJWT = tokenManager.generateJwtToken(userSaved);
+
         return new UserResponse().buildUserResponse(tokenJWT, userSaved);
     }
 
     public UserResponse login(final String token) {
 
         String userId = tokenManager.geIdFromToken(token);
-
         Optional<User> user = userRepository.findById(userId);
+
         if (!user.isPresent())
             throw new NotFoundException(LocalDateTime.now(), "Not Found - The user was not found by the given token");
 

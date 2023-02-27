@@ -39,7 +39,7 @@ public class UserResponse {
         this.token = token;
         this.id = user.getId();
         this.created = returnDateInCorrectFormat(user.getCreated());
-        this.lastLogin = returnDateInCorrectFormat(user.getLastLogin());
+        this.lastLogin = user.getLastLogin() != null ? returnDateInCorrectFormat(user.getLastLogin()) : null;
         this.isActive = user.isActive();
         this.name = user.getName();
         this.email = user.getEmail();
