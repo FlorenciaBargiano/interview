@@ -1,5 +1,6 @@
 package com.interview.bci.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,14 +16,15 @@ import java.util.Locale;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserResponse {
-    private String token;
-
     private String id;
 
     private String created;
 
     private String lastLogin;
 
+    private String token;
+
+    @JsonProperty(value="isActive")
     private boolean isActive;
 
     private String name;

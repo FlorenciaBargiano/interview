@@ -35,7 +35,7 @@ public class UserService {
         if (userRepository.existsByEmail(user.getEmail()))
             generateBadRequestException("Not valid - A user with that mail already exists");
         user.setActive(true);
-        user.setLastLogin(LocalDateTime.now());
+        user.setLastLogin(null);
         user.setCreated(LocalDateTime.now());
         user.setPassword(encryptedPassword);
         User userSaved = userRepository.save(user);
