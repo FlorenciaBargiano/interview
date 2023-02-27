@@ -45,7 +45,7 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
     }
 
     private String returnDateInCorrectFormat(LocalDateTime dateTime){
-        SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy hh.mm.ss aa", Locale.US);
+        SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy hh:mm:ss aa", Locale.US);
         return dateFormat.format(Timestamp.valueOf(dateTime));
     }
 
