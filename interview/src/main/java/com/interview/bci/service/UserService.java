@@ -75,7 +75,8 @@ public class UserService {
         Pattern pattern = Pattern.compile(patternPassword);
         Matcher regMatcher = pattern.matcher(password);
         if (!regMatcher.matches())
-            generateBadRequestException("Not valid - The password is not valid");
+            generateBadRequestException("Not valid - The password is not valid. It should have only one upper case, " +
+                    "2 numbers and a length from 8 to 12 characters");
 
        listDigits = password.chars().mapToObj((i) -> (char)i)
                 .peek(character -> {
