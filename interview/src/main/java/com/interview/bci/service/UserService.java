@@ -60,6 +60,7 @@ public class UserService {
         user.get().setLastLogin(LocalDateTime.now());
         User userSaved = userRepository.save(user.get());
         String tokenJWT = tokenManager.generateJwtToken(userSaved);
+
         return new UserResponse().buildUserResponse(tokenJWT, userSaved);
     }
 
