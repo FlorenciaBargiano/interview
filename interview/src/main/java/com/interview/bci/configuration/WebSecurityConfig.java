@@ -20,7 +20,8 @@ public class WebSecurityConfig {
                 .permitAll()
                 .and()
                 .csrf()
-                .disable();
+                .disable()
+                .headers().frameOptions().disable();
 
         return httpSecurity.build();
     }
