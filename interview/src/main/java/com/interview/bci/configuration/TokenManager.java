@@ -19,7 +19,7 @@ public class TokenManager {
     private String jwtSecret;
 
     public String generateJwtToken(User user) {
-        final long TOKEN_VALIDITY = 10 * 60 * 60;
+        final long TOKEN_VALIDITY = 2 * 60;
 
         Map<String, Object> claims = new HashMap<>();
         return Jwts.builder().setClaims(claims).setId(user.getId())
@@ -34,6 +34,15 @@ public class TokenManager {
                 .parseClaimsJws(token)
                 .getBody();
         return claims.getId();
+    }
+
+    public boolean isTokenExpired(String token) {
+        final Date dateExpiration = Jwts.parser()
+                .setSigningKey(decryptJWTSecret())
+                .parseClaimsJws(token)
+                .getBody().getExpiration();
+
+        return dateExpiration.before(new Date());
     }
 
     private String decryptJWTSecret() {

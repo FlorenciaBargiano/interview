@@ -9,6 +9,7 @@ import com.interview.bci.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.Errors;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -28,7 +29,10 @@ public class UserService {
     private static final String patternEmail = "^[(a-zA-Z-0-9-\\_\\+\\.)]+@[(a-z-A-Z)]+\\.[(a-zA-z)]{2,3}$";
     private static final String patternPassword = "[a-zA-Z-0-9]{8,12}$";
 
-    public UserResponse signUp(final User user) {
+    public UserResponse signUp(final User user, Errors errors) {
+        if (errors != null && errors.hasErrors())
+            throw new BadRequestException(LocalDateTime.now(), errors.getAllErrors().get(0).getDefaultMessage());
+
         validateEmail(user.getEmail());
         validatePassword(user.getPassword());
         String encryptedPassword = encoder.encode(user.getPassword());
@@ -40,6 +44,7 @@ public class UserService {
         user.setLastLogin(null);
         user.setCreated(LocalDateTime.now());
         user.setPassword(encryptedPassword);
+
         User userSaved = userRepository.save(user);
         String tokenJWT = tokenManager.generateJwtToken(userSaved);
 
@@ -47,6 +52,10 @@ public class UserService {
     }
 
     public UserResponse login(final String token) {
+
+        if(tokenManager.isTokenExpired(token)){
+            generateBadRequestException("Not valid - The token has expired");
+        }
 
         String userId = tokenManager.geIdFromToken(token);
         Optional<User> user = userRepository.findById(userId);
