@@ -67,7 +67,7 @@ class UserServiceTest {
         when(tokenManager.generateJwtToken(request)).thenReturn(token);
         when(passwordEncoder.encode(request.getPassword())).thenReturn(encryptedPassword);
 
-        UserResponse response = userService.signUp(request);
+        UserResponse response = userService.signUp(request, null);
 
         assertAll(
                 () -> assertEquals(request.getEmail(), response.getEmail()),
@@ -93,7 +93,7 @@ class UserServiceTest {
         when(tokenManager.generateJwtToken(request)).thenReturn(token);
         when(passwordEncoder.encode(request.getPassword())).thenReturn(encryptedPassword);
 
-        UserResponse response = userService.signUp(request);
+        UserResponse response = userService.signUp(request, null);
 
         assertAll(
                 () -> assertEquals(request.getEmail(), response.getEmail()),
@@ -118,7 +118,7 @@ class UserServiceTest {
         User request = buildUserWithAllFields();
         when(userRepository.existsByEmail(email)).thenReturn(true);
 
-        assertThrows(BadRequestException.class, () -> userService.signUp(request),
+        assertThrows(BadRequestException.class, () -> userService.signUp(request, null),
                 "Not valid - A user with that mail already exists");
 
         verify(userRepository, times(1)).existsByEmail(any());
@@ -134,7 +134,7 @@ class UserServiceTest {
             User request = buildUserWithRequiredFields();
             request.setPassword("123Florencia");
 
-            assertThrows(BadRequestException.class, () -> userService.signUp(request),
+            assertThrows(BadRequestException.class, () -> userService.signUp(request, null),
                     "Not valid - The password is not valid");
 
             verify(userRepository, never()).save(any());
@@ -148,7 +148,7 @@ class UserServiceTest {
             User request = buildUserWithRequiredFields();
             request.setPassword("12FFFlorencia");
 
-            assertThrows(BadRequestException.class, () -> userService.signUp(request),
+            assertThrows(BadRequestException.class, () -> userService.signUp(request, null),
                     "Not valid - The password is not valid");
             verify(userRepository, never()).save(any());
             verify(userRepository, never()).existsByEmail(any());
@@ -161,7 +161,7 @@ class UserServiceTest {
             User request = buildUserWithRequiredFields();
             request.setPassword("12Flore");
 
-            assertThrows(BadRequestException.class, () -> userService.signUp(request),
+            assertThrows(BadRequestException.class, () -> userService.signUp(request, null),
                     "Not valid - The password is not valid");
             verify(userRepository, never()).save(any());
             verify(userRepository, never()).existsByEmail(any());
@@ -175,7 +175,7 @@ class UserServiceTest {
             User request = buildUserWithRequiredFields();
             request.setPassword("12Florenciaaa");
 
-            assertThrows(BadRequestException.class, () -> userService.signUp(request),
+            assertThrows(BadRequestException.class, () -> userService.signUp(request, null),
                     "Not valid - The password is not valid");
             verify(userRepository, never()).save(any());
             verify(userRepository, never()).existsByEmail(any());
@@ -188,7 +188,7 @@ class UserServiceTest {
             User request = buildUserWithRequiredFields();
             request.setPassword("12floren");
 
-            assertThrows(BadRequestException.class, () -> userService.signUp(request),
+            assertThrows(BadRequestException.class, () -> userService.signUp(request, null),
                     "Not valid - The password is not valid");
             verify(userRepository, never()).save(any());
             verify(userRepository, never()).existsByEmail(any());
@@ -201,7 +201,7 @@ class UserServiceTest {
             User request = buildUserWithRequiredFields();
             request.setPassword("florenciaaa");
 
-            assertThrows(BadRequestException.class, () -> userService.signUp(request),
+            assertThrows(BadRequestException.class, () -> userService.signUp(request, null),
                     "Not valid - The password is not valid");
             verify(userRepository, never()).save(any());
             verify(userRepository, never()).existsByEmail(any());
@@ -217,7 +217,7 @@ class UserServiceTest {
             User request = buildUserWithRequiredFields();
             request.setEmail("bargianoflorenciaoutlook.com");
 
-            assertThrows(BadRequestException.class, () -> userService.signUp(request),
+            assertThrows(BadRequestException.class, () -> userService.signUp(request, null),
                     "Not valid - The email provided is not valid");
             verify(userRepository, never()).save(any());
             verify(userRepository, never()).existsByEmail(any());
@@ -230,7 +230,7 @@ class UserServiceTest {
             User request = buildUserWithRequiredFields();
             request.setEmail("bargianoflorencia@outlook");
 
-            assertThrows(BadRequestException.class, () -> userService.signUp(request),
+            assertThrows(BadRequestException.class, () -> userService.signUp(request, null),
                     "Not valid - The email provided is not valid");
             verify(userRepository, never()).save(any());
             verify(userRepository, never()).existsByEmail(any());
@@ -247,7 +247,7 @@ class UserServiceTest {
             when(userRepository.save(request)).thenReturn(request);
             when(tokenManager.generateJwtToken(request)).thenReturn(token);
 
-            UserResponse response = userService.signUp(request);
+            UserResponse response = userService.signUp(request, null);
             assertEquals(request.getEmail(), response.getEmail());
             assertEquals(request.getEmail(), email);
 
@@ -266,7 +266,7 @@ class UserServiceTest {
             when(userRepository.save(request)).thenReturn(request);
             when(tokenManager.generateJwtToken(request)).thenReturn(token);
 
-            UserResponse response = userService.signUp(request);
+            UserResponse response = userService.signUp(request, null);
             assertEquals(request.getEmail(), response.getEmail());
             assertEquals(request.getEmail(), email);
 

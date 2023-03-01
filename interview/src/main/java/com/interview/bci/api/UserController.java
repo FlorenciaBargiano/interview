@@ -6,6 +6,7 @@ import com.interview.bci.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -23,8 +24,10 @@ public class UserController {
     @PostMapping(value = "/sign-up",
             produces = "application/json",
             consumes = "application/json")
-    ResponseEntity<UserResponse> signUp(@Valid @RequestBody User user) {
-        return new ResponseEntity<>(userService.signUp(user), HttpStatus.CREATED);
+    ResponseEntity<UserResponse> signUp(@Valid @RequestBody User user,
+                                        Errors errors) {
+
+        return new ResponseEntity<>(userService.signUp(user, errors), HttpStatus.CREATED);
     }
 
     @GetMapping(value = "/login",
