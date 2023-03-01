@@ -47,7 +47,7 @@ public class User implements Serializable {
     private String password;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name="user_email", referencedColumnName = "email")
+    @JoinColumn(name="user_phone", referencedColumnName = "phone")
     private List<Phone> phones = new ArrayList<>();
 
 }
