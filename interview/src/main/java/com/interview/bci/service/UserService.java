@@ -1,8 +1,8 @@
 package com.interview.bci.service;
 
 import com.interview.bci.configuration.TokenManager;
-import com.interview.bci.entity.BadRequestException;
-import com.interview.bci.entity.NotFoundException;
+import com.interview.bci.errorHandler.BadRequestException;
+import com.interview.bci.errorHandler.NotFoundException;
 import com.interview.bci.entity.User;
 import com.interview.bci.entity.UserResponse;
 import com.interview.bci.repository.UserRepository;

@@ -1,9 +1,5 @@
 package com.interview.bci.errorHandler;
 
-import com.interview.bci.entity.ErrorDetail;
-import com.interview.bci.entity.BadRequestException;
-import com.interview.bci.entity.ErrorResponse;
-import com.interview.bci.entity.NotFoundException;
 import io.jsonwebtoken.ExpiredJwtException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,7 +10,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.Locale;
 
 @RestControllerAdvice
@@ -24,7 +20,7 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
     protected ResponseEntity<Object> handleErrorResponseWhenBadRequestException(BadRequestException ex) {
         ErrorDetail errorDetail = new ErrorDetail(returnDateInCorrectFormat(ex.getTimeStamp()), 400,ex.getDetail());
         ErrorResponse errorResponse = new ErrorResponse();
-        errorResponse.setError(Arrays.asList(errorDetail));
+        errorResponse.setError(Collections.singletonList(errorDetail));
         return new ResponseEntity<>( errorResponse, HttpStatus.valueOf(400));
     }
 
@@ -32,7 +28,7 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
     protected ResponseEntity<Object> handleErrorResponseWhenNotFoundException(NotFoundException ex) {
         ErrorDetail errorDetail = new ErrorDetail(returnDateInCorrectFormat(ex.getTimeStamp()), 404,ex.getDetail());
         ErrorResponse errorResponse = new ErrorResponse();
-        errorResponse.setError(Arrays.asList(errorDetail));
+        errorResponse.setError(Collections.singletonList(errorDetail));
         return new ResponseEntity<>( errorResponse, HttpStatus.valueOf(404));
     }
 
@@ -40,7 +36,7 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
     protected ResponseEntity<Object> handleErrorResponseWhenExpiredJwtException(ExpiredJwtException ex) {
         ErrorDetail errorDetail = new ErrorDetail(returnDateInCorrectFormat(LocalDateTime.now()), 400,"Invalid token - The token has expired");
         ErrorResponse errorResponse = new ErrorResponse();
-        errorResponse.setError(Arrays.asList(errorDetail));
+        errorResponse.setError(Collections.singletonList(errorDetail));
         return new ResponseEntity<>( errorResponse, HttpStatus.valueOf(errorDetail.getCode()));
     }
 

@@ -1,4 +1,4 @@
-package com.interview.bci.entity;
+package com.interview.bci.errorHandler;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class NotFoundException extends RuntimeException {
+public class BadRequestException extends RuntimeException {
     private LocalDateTime timeStamp;
     private String detail;
 }

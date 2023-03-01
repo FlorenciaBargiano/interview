@@ -1,17 +1,16 @@
-package com.interview.bci.entity;
+package com.interview.bci.errorHandler;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.List;
-
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ErrorResponse {
-
-    private List<ErrorDetail> error;
+public class ErrorDetail {
+    private String timeStamp;
+    private int code;
+    private String detail;
 }
